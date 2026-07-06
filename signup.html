@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Sign Up | North Point Capital Investments</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+font-family: 'Poppins', sans-serif;
+background: #f1f5f9;
+}
+
+.hero {
+background: linear-gradient(rgba(8,27,51,.9), rgba(8,27,51,.9)),
+url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1600&q=80');
+background-size: cover;
+background-position: center;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAV -->
+<nav class="bg-white shadow-md fixed w-full top-0 z-50">
+<div class="max-w-7xl mx-auto flex justify-between items-center p-5">
+
+<h1 class="text-xl font-bold text-blue-900">
+North Point Capital
+</h1>
+
+<div class="space-x-6 hidden md:block">
+<a href="index.html">Home</a>
+<a href="about.html">About</a>
+<a href="investment-plans.html">Plans</a>
+<a href="login.html">Login</a>
+</div>
+
+</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero h-[250px] flex items-center justify-center text-white text-center mt-20">
+<div>
+<h1 class="text-4xl font-bold">Create Your Account</h1>
+<p class="text-blue-200 mt-2">Join North Point Capital Investments today</p>
+</div>
+</section>
+
+<!-- SIGNUP FORM -->
+<section class="py-16">
+<div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg">
+
+<h2 class="text-3xl font-bold text-center text-blue-900 mb-8">
+Register
+</h2>
+
+<form id="signupForm" class="space-y-5">
+
+<!-- Full Name -->
+<div>
+<label class="font-semibold">Full Name</label>
+<input type="text" id="name" placeholder="Enter your full name"
+class="w-full border p-3 rounded-lg mt-2" required>
+</div>
+
+<!-- Email -->
+<div>
+<label class="font-semibold">Email</label>
+<input type="email" id="email" placeholder="Enter your email"
+class="w-full border p-3 rounded-lg mt-2" required>
+</div>
+
+<!-- Phone -->
+<div>
+<label class="font-semibold">Phone Number</label>
+<input type="text" id="phone" placeholder="Enter phone number"
+class="w-full border p-3 rounded-lg mt-2" required>
+</div>
+
+<!-- Password -->
+<div>
+<label class="font-semibold">Password</label>
+<input type="password" id="password" placeholder="Create password"
+class="w-full border p-3 rounded-lg mt-2" required>
+</div>
+
+<!-- Confirm Password -->
+<div>
+<label class="font-semibold">Confirm Password</label>
+<input type="password" id="confirmPassword" placeholder="Confirm password"
+class="w-full border p-3 rounded-lg mt-2" required>
+</div>
+
+<!-- Submit -->
+<button type="submit"
+class="w-full bg-blue-900 text-white py-3 rounded-lg font-bold hover:bg-blue-800 transition">
+Create Account
+</button>
+
+</form>
+
+<p class="text-center mt-6 text-gray-600">
+Already have an account?
+<a href="login.html" class="text-blue-900 font-bold">Login</a>
+</p>
+
+</div>
+</section>
+
+</body>
+</html>
+<!-- Firebase SDK (Compatibility version for simple setup) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+// 🔥 Firebase Config (replace with your own Firebase project keys)
+const firebaseConfig = {
+  apiKey: "AIzaSyDdmto2tVWm8BI8-eC-PJf8X6UFKaSKrOI",
+  authDomain: "npci-ac073.firebaseapp.com",
+  projectId: "npci-ac073",
+  storageBucket: "npci-ac073.firebasestorage.app",
+  messagingSenderId: "1051146572581",
+  appId: "1:1051146572581:web:faac078bcf47bbdd8fc0cc",
+  measurementId: "G-RDVKXXGPTJ"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+</script>
+
+<script>
+// 📌 Signup Form Logic
+const form = document.getElementById("signupForm");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const phone = document.getElementById("phone").value;
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+
+  // 🔒 Password match check
+  if (password !== confirmPassword) {
+    alert("Passwords do not match!");
+    return;
+  }
+
+  // 🔥 Basic validation
+  if (password.length < 6) {
+    alert("Password must be at least 6 characters!");
+    return;
+  }
+
+  try {
+    // Show loading state
+    alert("Creating account...");
+
+    // Create user in Firebase Auth
+    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+    const user = userCredential.user;
+
+    // Save extra user data in Firestore
+    await db.collection("users").doc(user.uid).set({
+      name: name,
+      email: email,
+      phone: phone,
+      balance: 0,
+      createdAt: new Date().toISOString()
+    });
+
+    // Send email verification
+    await user.sendEmailVerification();
+
+    alert("Account created successfully! Please verify your email.");
+
+    // Redirect to login page
+    window.location.href = "login.html";
+
+  } catch (error) {
+    alert(error.message);
+  }
+});
+</script>
+<script>
+// 🔔 Toast message system
+function showToast(message, isError = false) {
+  const toast = document.createElement("div");
+  toast.innerText = message;
+
+  toast.style.position = "fixed";
+  toast.style.top = "20px";
+  toast.style.right = "20px";
+  toast.style.padding = "12px 18px";
+  toast.style.borderRadius = "8px";
+  toast.style.color = "white";
+  toast.style.zIndex = "9999";
+  toast.style.fontWeight = "bold";
+
+  toast.style.background = isError ? "#dc2626" : "#1e3a8a";
+
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
+}
+</script>
+
+<script>
+// 🔥 FINAL SIGNUP LOGIC (clean + reliable)
+document.getElementById("signupForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+
+  if (!name || !email || !phone || !password || !confirmPassword) {
+    showToast("Please fill all fields", true);
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    showToast("Passwords do not match", true);
+    return;
+  }
+
+  if (password.length < 6) {
+    showToast("Password must be at least 6 characters", true);
+    return;
+  }
+
+  try {
+    showToast("Creating account...");
+
+    // Create user
+    const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+    const user = userCredential.user;
+
+    // Save user data in Firestore
+    await firebase.firestore().collection("users").doc(user.uid).set({
+      name,
+      email,
+      phone,
+      balance: 0,
+      createdAt: new Date().toISOString()
+    });
+
+    // Send verification email
+    await user.sendEmailVerification();
+
+    showToast("Account created! Check your email");
+
+    // Redirect
+    setTimeout(() => {
+      window.location.href = "login.html";
+    }, 2000);
+
+  } catch (error) {
+    showToast(error.message, true);
+  }
+});
+</script>
+
+</body>
+</html>
