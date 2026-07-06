@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Dashboard | North Point Capital Investments</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+body{
+font-family:'Poppins',sans-serif;
+background:#f1f5f9;
+}
+
+.sidebar{
+background:#0f172a;
+height:100vh;
+position:fixed;
+left:0;
+top:0;
+width:250px;
+color:white;
+}
+
+.main{
+margin-left:250px;
+padding:20px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar p-6">
+<h2 class="text-2xl font-bold mb-10">North Point</h2>
+
+<ul class="space-y-4">
+<li class="hover:text-yellow-400 cursor-pointer">Dashboard</li>
+<li class="hover:text-yellow-400 cursor-pointer">Investments</li>
+<li class="hover:text-yellow-400 cursor-pointer">Deposit</li>
+<li class="hover:text-yellow-400 cursor-pointer">Withdraw</li>
+<li class="hover:text-yellow-400 cursor-pointer">Profile</li>
+<li class="hover:text-red-400 cursor-pointer" onclick="logout()">Logout</li>
+</ul>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- TOP BAR -->
+<div class="flex justify-between items-center mb-10">
+<h1 class="text-3xl font-bold text-blue-900">
+Welcome, <span id="username">User</span>
+</h1>
+
+<div class="text-sm text-gray-500">
+Dashboard Overview
+</div>
+</div>
+
+<!-- CARDS -->
+<div class="grid md:grid-cols-3 gap-6">
+
+<div class="bg-white p-6 rounded-xl shadow">
+<p class="text-gray-500">Account Balance</p>
+<h2 class="text-2xl font-bold text-blue-900">$0.00</h2>
+</div>
+
+<div class="bg-white p-6 rounded-xl shadow">
+<p class="text-gray-500">Active Investment</p>
+<h2 class="text-2xl font-bold text-blue-900">0</h2>
+</div>
+
+<div class="bg-white p-6 rounded-xl shadow">
+<p class="text-gray-500">Total Profit</p>
+<h2 class="text-2xl font-bold text-blue-900">$0.00</h2>
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+// 🔥 Firebase Config (REPLACE THIS WITH YOUR OWN)
+const firebaseConfig = {
+  apiKey: "AIzaSyDdmto2tVWm8BI8-eC-PJf8X6UFKaSKrOI",
+  authDomain: "npci-ac073.firebaseapp.com",
+  projectId: "npci-ac073",
+  storageBucket: "npci-ac073.firebasestorage.app",
+  messagingSenderId: "1051146572581",
+  appId: "1:1051146572581:web:faac078bcf47bbdd8fc0cc",
+  measurementId: "G-RDVKXXGPTJ"
+};
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+</script>
+
+<script>
+// 🔐 AUTH PROTECTION (IMPORTANT)
+auth.onAuthStateChanged(async (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  // 👤 Load user data from Firestore
+  const doc = await db.collection("users").doc(user.uid).get();
+
+  if (doc.exists) {
+    const data = doc.data();
+
+    document.getElementById("username").innerText = data.name || "User";
+
+    // You can later connect real balance
+    document.querySelector(".text-2xl").innerText = "$" + (data.balance || 0).toFixed(2);
+  }
+});
+</script>
+
+<script>
+// 🚪 LOGOUT FUNCTION
+function logout() {
+  auth.signOut().then(() => {
+    window.location.href = "login.html";
+  });
+}
+</script>
+
+<!-- DASHBOARD ACTION SECTION -->
+<div class="mt-10 grid md:grid-cols-2 gap-6">
+
+<!-- INVESTMENT PANEL -->
+<div class="bg-white p-6 rounded-xl shadow">
+<h2 class="text-xl font-bold text-blue-900 mb-4">Invest Now</h2>
+
+<p class="text-gray-600 mb-4">
+Choose an investment plan to grow your capital.
+</p>
+
+<a href="investment-plans.html"
+class="bg-blue-900 text-white px-5 py-3 rounded-lg inline-block hover:bg-blue-800">
+View Plans
+</a>
+</div>
+
+<!-- DEPOSIT / WITHDRAW -->
+<div class="bg-white p-6 rounded-xl shadow">
+<h2 class="text-xl font-bold text-blue-900 mb-4">Wallet Actions</h2>
+
+<div class="space-y-3">
+
+<a href="#"
+class="block bg-green-500 text-white text-center py-3 rounded-lg hover:bg-green-600">
+Deposit Funds
+</a>
+
+<a href="#"
+class="block bg-red-500 text-white text-center py-3 rounded-lg hover:bg-red-600">
+Withdraw Funds
+</a>
+
+</div>
+</div>
+
+</div>
+
+<!-- RECENT ACTIVITY -->
+<div class="mt-10 bg-white p-6 rounded-xl shadow">
+
+<h2 class="text-xl font-bold text-blue-900 mb-4">Recent Activity</h2>
+
+<ul class="text-gray-600 space-y-2">
+
+<li>✔ Account created successfully</li>
+<li>✔ Email verification sent</li>
+<li>✔ Dashboard accessed</li>
+
+</ul>
+
+</div>
+
+<!-- FOOTER TEXT -->
+<div class="text-center mt-10 text-gray-500 text-sm">
+© 2026 North Point Capital Investments. All rights reserved.
+</div>
+
+</div>
+
+</body>
+</html>
